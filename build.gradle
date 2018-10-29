@@ -3,6 +3,9 @@ apply plugin: 'scala'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
+group "beam-utilities"
+version "0.0.1"
+
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
 
