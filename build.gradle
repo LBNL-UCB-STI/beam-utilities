@@ -16,15 +16,11 @@ def slf4jVersion = "1.7.25"
 buildscript {
     repositories {
         jcenter()
-        mavenLocal()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath group: 'kr.motd.gradle', name: 'sphinx-gradle-plugin', version: '1.0.3.Final'
-        classpath "jp.classmethod.aws:gradle-aws-plugin:0.35"
-        classpath "com.github.viswaramamoorthy:gradle-util-plugins:0.1.0-RELEASE"
-        classpath 'cz.alenkacz:gradle-scalafmt:1.7.0'
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
     }
 }
 
@@ -68,10 +64,24 @@ dependencies {
     }
 }
 
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Util Plugins',
+                'Implementation-Version': version
+    }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
