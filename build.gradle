@@ -6,8 +6,8 @@ apply plugin: 'kr.motd.sphinx'
 apply plugin: 'application'
 apply plugin: 'ManifestClasspath'
 
-group  = "beam-utilities"
-version  = "0.0.1"
+group  = 'beam-utilities'
+version  = '0.0.1'
 
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
