@@ -2,31 +2,29 @@ apply plugin: 'java'
 apply plugin: 'scala'
 apply plugin: 'maven'
 apply plugin: 'idea'
-apply plugin: 'kr.motd.sphinx'
-apply plugin: 'application'
-apply plugin: 'ManifestClasspath'
 
-group  = 'beam-utilities'
-version  = '0.0.1'
+group  = "beam-utilities"
+version  = "0.0.1"
 
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
 
 
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
-    }
-}
-
 allprojects {
     repositories {
+        maven { url 'http://download.osgeo.org/webdav/geotools/'}
+        maven { url "http://maven.geotoolkit.org/" }
+        maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
+        maven { url "http://central.maven.org/maven2" }
+        maven { url "http://repo.maven.apache.org/maven2" }
+        maven { url "http://download.osgeo.org/webdav/geotools" }
         maven { url "http://dl.bintray.com/matsim/matsim" }
+        maven { url "http://maven.conveyal.com/" }
+        maven { url "http://repo1.maven.org/maven2" }
+        maven { url "http://download.java.net/maven/2/" }
+        maven { url "http://people.apache.org/repo/m1-ibiblio-rsync-repository/org.apache.axis2/" }
+        maven { url "http://dl.bintray.com/andimarek/graphql-java" }
+        maven { url "http://maven.geo-solutions.it" }
         maven { url "http://dl.bintray.com/scalaz/releases" }
         mavenLocal()
         mavenCentral()
@@ -37,9 +35,6 @@ allprojects {
 }
 
 dependencies {
-
-    //This dependency is needed for strong dependency of PersonVehicleTransitionStats.java on Beam
-    compile group: 'com.github.LBNL-UCB-STI', name: 'beam', version: 'master'
 
     // GPLv3
     compile group: 'org.matsim.contrib', name: 'multimodal', version: '0.10.0'
@@ -53,6 +48,7 @@ dependencies {
     compile "ch.qos.logback:logback-classic:1.2.3"
     compile "com.typesafe.scala-logging:scala-logging_${scalaBinaryVersion}:3.9.0"
     compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
+    compile group: 'org.geotools' , name: 'gt-geotiff' , version: '14.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.8'
     testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.+'
@@ -62,26 +58,4 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
         exclude group: 'org.slf4j', module: 'slf4j-simple'
     }
-}
-
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'Gradle Util Plugins',
-                'Implementation-Version': version
-    }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
 }
