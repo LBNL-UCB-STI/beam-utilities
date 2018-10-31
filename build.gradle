@@ -38,6 +38,10 @@ allprojects {
 dependencies {
 
     // GPLv3
+    configurations {
+        all*.exclude group: 'javax.media', module: 'jai_core'
+    }
+
     compile group: 'org.matsim.contrib', name: 'multimodal', version: '0.10.0'
     compile group: 'org.matsim.contrib', name: 'bicycle', version: '0.10.0'
     compile (group: 'org.matsim', name: 'matsim', version: '0.10.0-beam-1') {
