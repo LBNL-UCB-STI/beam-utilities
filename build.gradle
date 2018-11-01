@@ -27,6 +27,7 @@ allprojects {
         maven { url "http://dl.bintray.com/andimarek/graphql-java" }
         maven { url "http://maven.geo-solutions.it" }
         maven { url "http://dl.bintray.com/scalaz/releases" }
+        maven { url 'https://repo.gradle.org/gradle/plugins-releases' }
         mavenLocal()
         mavenCentral()
         jcenter()
