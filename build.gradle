@@ -1,7 +1,43 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath group: 'kr.motd.gradle', name: 'sphinx-gradle-plugin', version: '1.0.3.Final'
+        classpath "jp.classmethod.aws:gradle-aws-plugin:0.35"
+        classpath "com.github.viswaramamoorthy:gradle-util-plugins:0.1.0-RELEASE"
+        classpath 'cz.alenkacz:gradle-scalafmt:1.7.0'
+    }
+}
+
+plugins {
+    id "net.ltgt.apt" version "0.5"
+    id "de.undercouch.download" version "3.2.0"
+}
+
+
 apply plugin: 'java'
 apply plugin: 'scala'
 apply plugin: 'maven'
 apply plugin: 'idea'
+
+
+//ext {
+//    env = "beamville"
+//}
+
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'kr.motd.sphinx'
+apply plugin: 'application'
+apply plugin: 'ManifestClasspath'
+apply plugin: 'scalafmt'
+
 
 
 group  = "beam-utilities"
@@ -44,6 +80,13 @@ dependencies {
         exclude group: 'log4j', module: 'log4j'
     }
     compile group: 'org.matsim.contrib', name: 'socnetsim', version: '0.10.0'
+
+    compile group: 'org.geotools', name: 'gt-main', version: '13.0'
+    compile group: 'org.geotools', name: 'gt-referencing', version: '13.0'
+    compile group: 'org.geotools', name: 'gt-shapefile', version: '13.0'
+    runtime group: 'org.geotools', name: 'gt-epsg-hsql', version: '13.0'
+    compile group: 'org.geotools', name: 'gt-referencing', version: '15.2'
+    compile group: 'org.geotools', name: 'gt-epsg-hsql', version: '15.2'
 
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
     compile "ch.qos.logback:logback-classic:1.2.3"
