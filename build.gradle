@@ -13,7 +13,6 @@ def slf4jVersion = "1.7.25"
 
 allprojects {
     repositories {
-        maven { url 'https://packages.atlassian.com/maven-3rdparty/'}
         maven { url 'http://download.osgeo.org/webdav/geotools'}
         maven { url 'https://mvnrepository.com/artifact/'}
         maven { url "http://maven.geotoolkit.org/" }
