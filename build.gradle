@@ -13,7 +13,7 @@ def slf4jVersion = "1.7.25"
 
 allprojects {
     repositories {
-        maven { url 'http://download.osgeo.org/webdav/geotools'}
+        maven { url 'http://download.osgeo.org/webdav/geotools/'}
         maven { url 'https://mvnrepository.com/artifact/'}
         maven { url "http://maven.geotoolkit.org/" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
@@ -27,7 +27,6 @@ allprojects {
         maven { url "http://dl.bintray.com/andimarek/graphql-java" }
         maven { url "http://maven.geo-solutions.it" }
         maven { url "http://dl.bintray.com/scalaz/releases" }
-        maven { url 'https://repo.gradle.org/gradle/plugins-releases' }
         mavenLocal()
         mavenCentral()
         jcenter()
