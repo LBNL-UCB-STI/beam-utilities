@@ -48,7 +48,7 @@ dependencies {
     compile "ch.qos.logback:logback-classic:1.2.3"
     compile "com.typesafe.scala-logging:scala-logging_${scalaBinaryVersion}:3.9.0"
     compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
-    compile group: 'org.geotools' , name: 'gt-geotiff' , version: '13.0'
+
 
     testCompile group: 'junit', name: 'junit', version: '4.8'
     testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.+'
