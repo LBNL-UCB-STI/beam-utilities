@@ -12,19 +12,6 @@ buildscript {
         classpath 'cz.alenkacz:gradle-scalafmt:1.7.0'
     }
 }
-
-plugins {
-    id "net.ltgt.apt" version "0.5"
-    id "de.undercouch.download" version "3.2.0"
-}
-
-
-apply plugin: 'java'
-apply plugin: 'scala'
-apply plugin: 'maven'
-apply plugin: 'idea'
-
-
 //ext {
 //    env = "beamville"
 //}
@@ -33,10 +20,7 @@ apply plugin: 'java'
 apply plugin: 'scala'
 apply plugin: 'maven'
 apply plugin: 'idea'
-apply plugin: 'kr.motd.sphinx'
-apply plugin: 'application'
-apply plugin: 'ManifestClasspath'
-apply plugin: 'scalafmt'
+
 
 
 
@@ -49,8 +33,6 @@ def slf4jVersion = "1.7.25"
 
 allprojects {
     repositories {
-        maven { url 'http://download.osgeo.org/webdav/geotools/'}
-        maven { url 'https://mvnrepository.com/artifact/'}
         maven { url "http://maven.geotoolkit.org/" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
         maven { url "http://central.maven.org/maven2" }
