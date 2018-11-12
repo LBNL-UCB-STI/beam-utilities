@@ -101,14 +101,4 @@ public class PlotGraph {
         return chart;
     }
 
-
-    public int getBinIndex(final double time , int binSize , int numOfBins) {
-        int bin = (int) (time / binSize);
-        if (bin >= numOfBins) {
-            return numOfBins;
-        }
-        return bin;
-    }
-
-
 }
