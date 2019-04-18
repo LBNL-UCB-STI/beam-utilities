@@ -29,48 +29,39 @@ public class OsmToMATSim {
     private final static String TAG_MAXSPEED = "maxspeed";
     private final static String TAG_JUNCTION = "junction";
     private final static String TAG_ONEWAY = "oneway";
-    private final static String TAG_ACCESS = "access";
-    private final static String[] ALL_TAGS = new String[]{TAG_LANES, TAG_HIGHWAY, TAG_MAXSPEED, TAG_JUNCTION, TAG_ONEWAY, TAG_ACCESS};
+
+    private final static double MOTORWAY_LINK_RATIO = 80.0/120;
+    private final static double PRIMARY_LINK_RATIO = 60.0/80;
+    private final static double TRUNK_LINK_RATIO = 50.0/80;
+    private final static double SECONDARY_LINK_RATIO = 0.66;
+    private final static double TERTIARY_LINK_RATIO = 0.66;
+
     public final Map<String, BEAMHighwayDefaults> highwayDefaults = new HashMap<>();
-    private final Set<String> unknownHighways = new HashSet<>(); // Used for logging in OsmNetworkReader
     private final Set<String> unknownMaxspeedTags = new HashSet<>();
     private final Set<String> unknownLanesTags = new HashSet<>();
     private final Network mNetwork;
-    private long id = 0;
-
 
     public OsmToMATSim(final Network mNetwork, boolean useBEAMHighwayDefaults) {
         this.mNetwork = mNetwork;
         if (useBEAMHighwayDefaults) {
-
             log.info("Falling back to default values.");
-            this.setBEAMHighwayDefaults(1, "motorway", 2, 120.0 / 3.6, 1.0, 2000, true);
-            this.setBEAMHighwayDefaults(1, "motorway_link", 1, 80.0 / 3.6, 1.0, 1500, true);
-            this.setBEAMHighwayDefaults(2, "trunk", 1, 80.0 / 3.6, 1.0, 2000);
-            this.setBEAMHighwayDefaults(2, "trunk_link", 1, 50.0 / 3.6, 1.0, 1500);
-            this.setBEAMHighwayDefaults(3, "primary", 1, 80.0 / 3.6, 1.0, 1500);
-            this.setBEAMHighwayDefaults(3, "primary_link", 1, 60.0 / 3.6, 1.0, 1500);
+            this.setBEAMHighwayDefaults(1, "motorway", 2, toMetersPerSecond(75), 1.0, 2000, true);
+            this.setBEAMHighwayDefaults(1, "motorway_link", 1, MOTORWAY_LINK_RATIO * toMetersPerSecond(75), 1.0, 1500, true);
+            this.setBEAMHighwayDefaults(3, "primary", 1, toMetersPerSecond(65), 1.0, 1500);
+            this.setBEAMHighwayDefaults(3, "primary_link", 1, PRIMARY_LINK_RATIO * toMetersPerSecond(65), 1.0, 1500);
+            this.setBEAMHighwayDefaults(2, "trunk", 1, toMetersPerSecond(60), 1.0, 2000);
+            this.setBEAMHighwayDefaults(2, "trunk_link", 1, TRUNK_LINK_RATIO * toMetersPerSecond(60), 1.0, 1500);
 
-//			this.setBEAMHighwayDefaults(4, "secondary",     1,  60.0/3.6, 1.0, 1000);
-//			this.setBEAMHighwayDefaults(5, "tertiary",      1,  45.0/3.6, 1.0,  600);
-//			this.setBEAMHighwayDefaults(6, "minor",         1,  45.0/3.6, 1.0,  600);
-//			this.setBEAMHighwayDefaults(6, "unclassified",  1,  45.0/3.6, 1.0,  600);
-//			this.setBEAMHighwayDefaults(6, "residential",   1,  30.0/3.6, 1.0,  600);
-//			this.setBEAMHighwayDefaults(6, "living_street", 1,  15.0/3.6, 1.0,  300);
+            this.setBEAMHighwayDefaults(4, "secondary", 1, toMetersPerSecond(60), 1.0, 1000);
+            this.setBEAMHighwayDefaults(4, "secondary_link", 1, SECONDARY_LINK_RATIO * toMetersPerSecond(60), 1.0, 1000);
+            this.setBEAMHighwayDefaults(5, "tertiary", 1, toMetersPerSecond(55), 1.0, 600);
+            this.setBEAMHighwayDefaults(5, "tertiary_link", 1, TERTIARY_LINK_RATIO * toMetersPerSecond(55), 1.0, 600);
 
-            // Setting the following to considerably smaller values, since there are often traffic signals/non-prio intersections.
-            // If someone does a systematic study, please report.  kai, jul'16
-            this.setBEAMHighwayDefaults(4, "secondary", 1, 30.0 / 3.6, 1.0, 1000);
-            this.setBEAMHighwayDefaults(4, "secondary_link", 1, 30.0 / 3.6, 1.0, 1000);
-            this.setBEAMHighwayDefaults(5, "tertiary", 1, 25.0 / 3.6, 1.0, 600);
-            this.setBEAMHighwayDefaults(5, "tertiary_link", 1, 25.0 / 3.6, 1.0, 600);
-            this.setBEAMHighwayDefaults(6, "minor", 1, 20.0 / 3.6, 1.0, 600);
-            this.setBEAMHighwayDefaults(6, "residential", 1, 15.0 / 3.6, 1.0, 600);
-            this.setBEAMHighwayDefaults(6, "living_street", 1, 10.0 / 3.6, 1.0, 300);
-            // changing the speed values failed the evacuation ScenarioGenerator test because of a different network -- DESPITE
-            // the fact that all the speed values are reset to some other value there.  No idea what happens there. kai, jul'16
+            this.setBEAMHighwayDefaults(6, "minor", 1, toMetersPerSecond(25), 1.0, 600);
+            this.setBEAMHighwayDefaults(6, "residential", 1, toMetersPerSecond(25), 1.0, 600);
+            this.setBEAMHighwayDefaults(6, "living_street", 1, toMetersPerSecond(25), 1.0, 300);
 
-            this.setBEAMHighwayDefaults(6, "unclassified", 1, 45.0 / 3.6, 1.0, 600);
+            this.setBEAMHighwayDefaults(6, "unclassified", 1, toMetersPerSecond(28), 1.0, 600);
         }
     }
 
@@ -219,6 +210,10 @@ public class OsmToMATSim {
         } else {
             throw new RuntimeException();
         }
+    }
+
+    public static double toMetersPerSecond(double milesPerHour) {
+        return milesPerHour * 1.60934 * 1000 / 3600;
     }
 
     /**
