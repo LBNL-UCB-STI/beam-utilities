@@ -38,98 +38,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class BeamCalcLinkStats {
+public class BeamCalcLinkStats extends CalcLinkStats{
 
-    private final static Logger log = LoggerFactory.getLogger(CalcLinkStats.class);
+    private final static Logger log = LoggerFactory.getLogger(BeamCalcLinkStats.class);
     private static final int MIN = 0;
     private static final int MAX = 1;
     private static final int SUM = 2;
     private static final String[] statType = {"MIN", "MAX", "AVG"};
-    private static final int NOF_STATS = 3;
-    private final Map<Id<Link>, LinkData> linkData;
-    private final int nofHours;
-    private final Network network;
     private int count = 0;
+    private final int nofHours;
 
     @Inject
     public BeamCalcLinkStats(final Network network, final TravelTimeCalculatorConfigGroup ttConfigGroup) {
-        this.network = network;
-        this.linkData = new ConcurrentHashMap<>();
-        this.nofHours = (int)TimeUnit.SECONDS.toHours(ttConfigGroup.getMaxTime());
-        reset();
-    }
-
-    public void addData(final VolumesAnalyzer analyzer, final TravelTime ttimes) {
-        this.count++;
-        // TODO verify ttimes has hourly timeBin-Settings
-
-        // go through all links
-        for (Id<Link> linkId : this.linkData.keySet()) {
-
-            // retrieve link from link ID
-            Link link = this.network.getLinks().get(linkId);
-
-            // get the volumes for the link ID from the analyzier
-            double[] volumes = analyzer.getVolumesPerHourForLink(linkId);
-
-            // get the destination container for the data from link data (could have gotten this through iterator right away)
-            LinkData data = this.linkData.get(linkId);
-
-            // prepare the sum variables (for volumes);
-            long sumVolumes = 0; // daily (0-24) sum
-
-            // go through all hours:
-            for (int hour = 0; hour < this.nofHours; hour++) {
-
-                // get travel time for hour
-                double ttime = ttimes.getLinkTravelTime(link, hour * 3600, null, null);
-
-                // add for daily sum:
-                sumVolumes += volumes[hour];
-
-                // the following has something to do with the fact that we are doing this for multiple iterations.  So there are variations.
-                // this collects min and max.  There is, however, no good control over how many iterations this is collected.
-                if (this.count == 1) {
-                    data.volumes[MIN][hour] = volumes[hour];
-                    data.volumes[MAX][hour] = volumes[hour];
-                    data.ttimes[MIN][hour] = ttime;
-                    data.ttimes[MAX][hour] = ttime;
-                } else {
-                    if (volumes[hour] < data.volumes[MIN][hour]) data.volumes[MIN][hour] = volumes[hour];
-                    if (volumes[hour] > data.volumes[MAX][hour]) data.volumes[MAX][hour] = volumes[hour];
-                    if (ttime < data.ttimes[MIN][hour]) data.ttimes[MIN][hour] = ttime;
-                    if (ttime > data.ttimes[MAX][hour]) data.ttimes[MAX][hour] = ttime;
-                }
-
-                // this is the regular summing up for each hour
-                data.volumes[SUM][hour] += volumes[hour];
-                data.ttimes[SUM][hour] += volumes[hour] * ttime;
-            }
-            // dataVolumes[.][nofHours] are daily (0-24) values
-            if (this.count == 1) {
-                data.volumes[MIN][this.nofHours] = sumVolumes;
-                data.volumes[SUM][this.nofHours] = sumVolumes;
-                data.volumes[MAX][this.nofHours] = sumVolumes;
-            } else {
-                if (sumVolumes < data.volumes[MIN][this.nofHours]) data.volumes[MIN][this.nofHours] = sumVolumes;
-                data.volumes[SUM][this.nofHours] += sumVolumes;
-                if (sumVolumes > data.volumes[MAX][this.nofHours]) data.volumes[MAX][this.nofHours] = sumVolumes;
-            }
-        }
-    }
-
-    public void reset() {
-        this.linkData.clear();
-        this.count = 0;
-        log.info(" resetting `count' to zero.  This info is here since we want to check when this" +
-                " is happening during normal simulation runs.  kai, jan'11");
-
-        // initialize our data-table
-        for (Link link : this.network.getLinks().values()) {
-            LinkData data = new LinkData(new double[NOF_STATS][this.nofHours + 1], new double[NOF_STATS][this.nofHours]);
-            this.linkData.put(link.getId(), data);
-        }
-
+        super(network);
+        nofHours = (int)TimeUnit.SECONDS.toHours(ttConfigGroup.getMaxTime());
+        setNofHours(nofHours);
     }
 
     public void writeFile(final String filename) {
@@ -142,14 +65,15 @@ public class BeamCalcLinkStats {
 
             out.write("\n");
 
+            Map<Id<Link>, ? extends Link> links = getNetwork().getLinks();
             // write data
-            for (Map.Entry<Id<Link>, LinkData> entry : this.linkData.entrySet()) {
+            for (Map.Entry<Id<Link>, LinkData> entry : getLinkData().entrySet()) {
 
                 for (int i = 0; i <= this.nofHours; i++) {
                     for (int j = MIN; j <= SUM; j++) {
                         Id<Link> linkId = entry.getKey();
                         LinkData data = entry.getValue();
-                        Link link = this.network.getLinks().get(linkId);
+                        Link link = links.get(linkId);
 
                         out.write(linkId.toString());
                         writeCommaAndStr(out, link.getFromNode().getId().toString());
@@ -232,15 +156,5 @@ public class BeamCalcLinkStats {
     private void writeCommaAndStr(BufferedWriter out, String str) throws IOException{
         out.write(',');
         out.write(str);
-    }
-
-    private static class LinkData {
-        final double[][] volumes;
-        final double[][] ttimes;
-
-        LinkData(final double[][] linksVolumes, final double[][] linksTTimes) {
-            this.volumes = linksVolumes.clone();
-            this.ttimes = linksTTimes.clone();
-        }
     }
 }
