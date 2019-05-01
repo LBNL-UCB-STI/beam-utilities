@@ -10,9 +10,7 @@ import org.matsim.core.utils.io.OsmNetworkReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,7 +35,6 @@ public class OsmToMATSim extends OsmNetworkReader {
     private final static double SECONDARY_LINK_RATIO = 0.66;
     private final static double TERTIARY_LINK_RATIO = 0.66;
 
-    public final Map<String, OsmHighwayDefaults> highwayDefaults = new HashMap<>();
     private final Set<String> unknownMaxspeedTags = new HashSet<>();
     private final Set<String> unknownLanesTags = new HashSet<>();
     private final Network mNetwork;
