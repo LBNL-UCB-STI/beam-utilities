@@ -6,12 +6,11 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.api.core.v01.network.Node;
 import org.matsim.core.network.NetworkUtils;
+import org.matsim.core.utils.io.OsmNetworkReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,7 +19,7 @@ import java.util.Set;
  * attributes in the MATSim network based on the OSM way's tags the same way OsmNetworkReader does.
  */
 
-public class OsmToMATSim {
+public class OsmToMATSim extends OsmNetworkReader {
 
     private final static Logger log = LoggerFactory.getLogger(OsmToMATSim.class);
 
@@ -36,67 +35,36 @@ public class OsmToMATSim {
     private final static double SECONDARY_LINK_RATIO = 0.66;
     private final static double TERTIARY_LINK_RATIO = 0.66;
 
-    public final Map<String, BEAMHighwayDefaults> highwayDefaults = new HashMap<>();
     private final Set<String> unknownMaxspeedTags = new HashSet<>();
     private final Set<String> unknownLanesTags = new HashSet<>();
     private final Network mNetwork;
 
     public OsmToMATSim(final Network mNetwork, boolean useBEAMHighwayDefaults) {
+        super(mNetwork, null, false);
         this.mNetwork = mNetwork;
+
         if (useBEAMHighwayDefaults) {
             log.info("Falling back to default values.");
-            this.setBEAMHighwayDefaults(1, "motorway", 2, toMetersPerSecond(75), 1.0, 2000, true);
-            this.setBEAMHighwayDefaults(1, "motorway_link", 1, MOTORWAY_LINK_RATIO * toMetersPerSecond(75), 1.0, 1500, true);
-            this.setBEAMHighwayDefaults(3, "primary", 1, toMetersPerSecond(65), 1.0, 1500);
-            this.setBEAMHighwayDefaults(3, "primary_link", 1, PRIMARY_LINK_RATIO * toMetersPerSecond(65), 1.0, 1500);
-            this.setBEAMHighwayDefaults(2, "trunk", 1, toMetersPerSecond(60), 1.0, 2000);
-            this.setBEAMHighwayDefaults(2, "trunk_link", 1, TRUNK_LINK_RATIO * toMetersPerSecond(60), 1.0, 1500);
+            this.setHighwayDefaults(1, "motorway", 2, toMetersPerSecond(75), 1.0, 2000, true);
+            this.setHighwayDefaults(1, "motorway_link", 1, MOTORWAY_LINK_RATIO * toMetersPerSecond(75), 1.0, 1500, true);
+            this.setHighwayDefaults(3, "primary", 1, toMetersPerSecond(65), 1.0, 1500);
+            this.setHighwayDefaults(3, "primary_link", 1, PRIMARY_LINK_RATIO * toMetersPerSecond(65), 1.0, 1500);
+            this.setHighwayDefaults(2, "trunk", 1, toMetersPerSecond(60), 1.0, 2000);
+            this.setHighwayDefaults(2, "trunk_link", 1, TRUNK_LINK_RATIO * toMetersPerSecond(60), 1.0, 1500);
 
-            this.setBEAMHighwayDefaults(4, "secondary", 1, toMetersPerSecond(60), 1.0, 1000);
-            this.setBEAMHighwayDefaults(4, "secondary_link", 1, SECONDARY_LINK_RATIO * toMetersPerSecond(60), 1.0, 1000);
-            this.setBEAMHighwayDefaults(5, "tertiary", 1, toMetersPerSecond(55), 1.0, 600);
-            this.setBEAMHighwayDefaults(5, "tertiary_link", 1, TERTIARY_LINK_RATIO * toMetersPerSecond(55), 1.0, 600);
+            this.setHighwayDefaults(4, "secondary", 1, toMetersPerSecond(60), 1.0, 1000);
+            this.setHighwayDefaults(4, "secondary_link", 1, SECONDARY_LINK_RATIO * toMetersPerSecond(60), 1.0, 1000);
+            this.setHighwayDefaults(5, "tertiary", 1, toMetersPerSecond(55), 1.0, 600);
+            this.setHighwayDefaults(5, "tertiary_link", 1, TERTIARY_LINK_RATIO * toMetersPerSecond(55), 1.0, 600);
 
-            this.setBEAMHighwayDefaults(6, "minor", 1, toMetersPerSecond(25), 1.0, 600);
-            this.setBEAMHighwayDefaults(6, "residential", 1, toMetersPerSecond(25), 1.0, 600);
-            this.setBEAMHighwayDefaults(6, "living_street", 1, toMetersPerSecond(25), 1.0, 300);
+            this.setHighwayDefaults(6, "minor", 1, toMetersPerSecond(25), 1.0, 600);
+            this.setHighwayDefaults(6, "residential", 1, toMetersPerSecond(25), 1.0, 600);
+            this.setHighwayDefaults(6, "living_street", 1, toMetersPerSecond(25), 1.0, 300);
 
-            this.setBEAMHighwayDefaults(6, "unclassified", 1, toMetersPerSecond(28), 1.0, 600);
+            this.setHighwayDefaults(6, "unclassified", 1, toMetersPerSecond(28), 1.0, 600);
         }
     }
 
-    /**
-     * Replaces OsmNetworkReader.setHighwayDefaults
-     * Sets defaults for converting OSM highway paths into MATSim links, assuming it is no oneway road.
-     *
-     * @param hierarchy               The hierarchy layer the highway appears.
-     * @param highwayType             The type of highway these defaults are for.
-     * @param lanesPerDirection       number of lanes on that road type <em>in each direction</em>
-     * @param freespeed               the free speed vehicles can drive on that road type [meters/second]
-     * @param freespeedFactor         the factor the freespeed is scaled
-     * @param laneCapacity_vehPerHour the capacity per lane [veh/h]
-     * @see <a href="http://wiki.openstreetmap.org/wiki/Map_Features#Highway">http://wiki.openstreetmap.org/wiki/Map_Features#Highway</a>
-     */
-    public void setBEAMHighwayDefaults(final int hierarchy, final String highwayType, final double lanesPerDirection, final double freespeed, final double freespeedFactor, final double laneCapacity_vehPerHour) {
-        setBEAMHighwayDefaults(hierarchy, highwayType, lanesPerDirection, freespeed, freespeedFactor, laneCapacity_vehPerHour, false);
-    }
-
-    /**
-     * Replaces OsmNetworkReader.setHighwayDefaults
-     * Sets defaults for converting OSM highway paths into MATSim links.
-     *
-     * @param hierarchy               The hierarchy layer the highway appears in.
-     * @param highwayType             The type of highway these defaults are for.
-     * @param lanesPerDirection       number of lanes on that road type <em>in each direction</em>
-     * @param freespeed               the free speed vehicles can drive on that road type [meters/second]
-     * @param freespeedFactor         the factor the freespeed is scaled
-     * @param laneCapacity_vehPerHour the capacity per lane [veh/h]
-     * @param oneway                  <code>true</code> to say that this road is a oneway road
-     */
-    public void setBEAMHighwayDefaults(final int hierarchy, final String highwayType, final double lanesPerDirection, final double freespeed,
-                                       final double freespeedFactor, final double laneCapacity_vehPerHour, final boolean oneway) {
-        this.highwayDefaults.put(highwayType, new BEAMHighwayDefaults(hierarchy, lanesPerDirection, freespeed, freespeedFactor, laneCapacity_vehPerHour, oneway));
-    }
 
     public Link createLink(final Way way, long osmID, Integer r5ID, final Node fromMNode, final Node toMNode,
                            final double length, HashSet<String> flagStrings) {
@@ -104,7 +72,7 @@ public class OsmToMATSim {
         if (highway == null) {
             highway = "unclassified";
         }
-        BEAMHighwayDefaults defaults = this.highwayDefaults.get(highway);
+        OsmHighwayDefaults defaults = this.highwayDefaults.get(highway);
 
         if (defaults == null) {
             defaults = this.highwayDefaults.get("unclassified");
@@ -216,25 +184,4 @@ public class OsmToMATSim {
         return milesPerHour * 1.60934 * 1000 / 3600;
     }
 
-    /**
-     * Takes the place of the private class OsmNetworkReader.OsmHighwayDefaults
-     */
-    public static class BEAMHighwayDefaults {
-        public final int hierarchy;
-        public final double lanesPerDirection;
-        public final double freespeed;
-        public final double freespeedFactor;
-        public final double laneCapacity;
-        public final boolean oneway;
-
-        public BEAMHighwayDefaults(final int hierarchy, final double lanesPerDirection, final double freespeed,
-                                   final double freespeedFactor, final double laneCapacity, final boolean oneway) {
-            this.hierarchy = hierarchy;
-            this.lanesPerDirection = lanesPerDirection;
-            this.freespeed = freespeed;
-            this.freespeedFactor = freespeedFactor;
-            this.laneCapacity = laneCapacity;
-            this.oneway = oneway;
-        }
-    }
 }
