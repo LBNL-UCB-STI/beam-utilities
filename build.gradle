@@ -58,7 +58,7 @@ dependencies {
     // GPLv3
     compile group: 'org.matsim.contrib', name: 'multimodal', version: '0.10.0'
     compile group: 'org.matsim.contrib', name: 'bicycle', version: '0.10.0'
-    compile (group: 'org.matsim', name: 'matsim', version: '0.10.0-beam-1') {
+    compile('com.github.wrashid.matsim:matsim:rajnikantsh~remove-redundant-code-SNAPSHOT') {
         exclude group: 'log4j', module: 'log4j'
     }
     compile group: 'org.matsim.contrib', name: 'socnetsim', version: '0.10.0'
