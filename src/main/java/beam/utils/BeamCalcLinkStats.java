@@ -44,7 +44,7 @@ public class BeamCalcLinkStats {
     private static final int MIN = 0;
     private static final int SUM = 1;
     private static final String[] statType = {"MIN", "AVG"};
-    private static final int NOF_STATS = 1;
+    private static final int NOF_STATS = 2;
     private final Map<Id<Link>, LinkData> linkData;
     private final int nofHours;
     private final Network network;
