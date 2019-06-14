@@ -102,7 +102,7 @@ public class EventWriterXML_viaCompatible implements EventWriter, BasicEventHand
     @Override
     public void handleEvent(final Event event) {
 
-        if(distributedRandomNumberGenerator.getDistributedRandomNumber())
+        if(!distributedRandomNumberGenerator.getDistributedRandomNumber())
             return;
         // select 500 agents for sf-light demo in via
         //if (outFileName.contains("sf-light")){
