@@ -1,6 +1,7 @@
 package beam.analysis.via;
 
 
+import beam.utils.DistributedRandomNumberGenerator;
 import org.matsim.api.core.v01.events.Event;
 import org.matsim.core.events.algorithms.EventWriter;
 import org.matsim.core.events.handler.BasicEventHandler;
@@ -23,6 +24,7 @@ public class EventWriterXML_viaCompatible implements EventWriter, BasicEventHand
     private static final String CAR = "car";
     private final BufferedWriter out;
     private boolean eventsForFullVersionOfVia;
+    private DistributedRandomNumberGenerator distributedRandomNumberGenerator;
     HashMap<String, HashSet<String>> filterPeopleForViaDemo = new HashMap<>();
     HashMap<String, Integer> maxPeopleForViaDemo = new HashMap<>();
 
@@ -45,6 +47,10 @@ public class EventWriterXML_viaCompatible implements EventWriter, BasicEventHand
         }
     }
 
+    public EventWriterXML_viaCompatible(final String outFileName, boolean eventsForFullVersionOfVia, double sampling) {
+        this(outFileName,eventsForFullVersionOfVia);
+        distributedRandomNumberGenerator = new DistributedRandomNumberGenerator(sampling);
+    }
 
     @Override
     public void closeFile() {
@@ -96,6 +102,8 @@ public class EventWriterXML_viaCompatible implements EventWriter, BasicEventHand
     @Override
     public void handleEvent(final Event event) {
 
+        if(distributedRandomNumberGenerator.getDistributedRandomNumber())
+            return;
         // select 500 agents for sf-light demo in via
         //if (outFileName.contains("sf-light")){
         Map<String, String> eventAttributes = event.getAttributes();
