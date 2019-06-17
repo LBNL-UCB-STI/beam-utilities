@@ -29,9 +29,14 @@ public class EventWriterXML_viaCompatible implements EventWriter, BasicEventHand
     HashMap<String, Integer> maxPeopleForViaDemo = new HashMap<>();
 
     public EventWriterXML_viaCompatible(final String outFileName, boolean eventsForFullVersionOfVia) {
+        this(outFileName, eventsForFullVersionOfVia, 1);
+    }
+
+    public EventWriterXML_viaCompatible(final String outFileName, boolean eventsForFullVersionOfVia, double sampling) {
         this.out = IOUtils.getBufferedWriter(outFileName);
         this.eventsForFullVersionOfVia = eventsForFullVersionOfVia;
 
+        distributedRandomNumberGenerator = new DistributedRandomNumberGenerator(sampling);
         filterPeopleForViaDemo.put(CAR, new HashSet<>());
         filterPeopleForViaDemo.put(BUS, new HashSet<>());
         filterPeopleForViaDemo.put(TNC, new HashSet<>());
@@ -45,11 +50,7 @@ public class EventWriterXML_viaCompatible implements EventWriter, BasicEventHand
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
-    public EventWriterXML_viaCompatible(final String outFileName, boolean eventsForFullVersionOfVia, double sampling) {
-        this(outFileName,eventsForFullVersionOfVia);
-        distributedRandomNumberGenerator = new DistributedRandomNumberGenerator(sampling);
     }
 
     @Override
