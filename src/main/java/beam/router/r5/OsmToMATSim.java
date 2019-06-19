@@ -154,7 +154,11 @@ public class OsmToMATSim {
         String maxspeedTag = way.getTag(TAG_MAXSPEED);
         if (maxspeedTag != null) {
             try {
-                freespeed = Double.parseDouble(maxspeedTag) / 3.6; // convert km/h to m/s
+                if(maxspeedTag.endsWith("mph")) {
+                    freespeed = toMetersPerSecond(Double.parseDouble(maxspeedTag.replace("mph", "").trim())); // convert mph to m/s
+                } else {
+                    freespeed = Double.parseDouble(maxspeedTag) / 3.6; // convert km/h to m/s
+                }
             } catch (NumberFormatException e) {
                 if (!this.unknownMaxspeedTags.contains(maxspeedTag)) {
                     this.unknownMaxspeedTags.add(maxspeedTag);
