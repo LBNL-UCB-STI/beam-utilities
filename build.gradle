@@ -6,8 +6,6 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath group: 'kr.motd.gradle', name: 'sphinx-gradle-plugin', version: '1.0.3.Final'
-        classpath "jp.classmethod.aws:gradle-aws-plugin:0.35"
         classpath "com.github.viswaramamoorthy:gradle-util-plugins:0.1.0-RELEASE"
     }
 }
@@ -25,11 +23,10 @@ targetCompatibility = 1.8
 
 
 group  = "beam-utilities"
-version  = "0.2.9"
+version  = "0.2.10"
 
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
-
 
 allprojects {
     repositories {
@@ -60,18 +57,10 @@ dependencies {
     }
     compile group: 'org.matsim.contrib', name: 'socnetsim', version: '0.10.0'
 
-    compile group: 'org.geotools', name: 'gt-main', version: '13.0'
-    compile group: 'org.geotools', name: 'gt-referencing', version: '13.0'
-    compile group: 'org.geotools', name: 'gt-shapefile', version: '13.0'
-    runtime group: 'org.geotools', name: 'gt-epsg-hsql', version: '13.0'
-    compile group: 'org.geotools', name: 'gt-referencing', version: '15.2'
-    compile group: 'org.geotools', name: 'gt-epsg-hsql', version: '15.2'
-
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
     compile "ch.qos.logback:logback-classic:1.2.3"
     compile "com.typesafe.scala-logging:scala-logging_${scalaBinaryVersion}:3.9.0"
     compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
-    compile group: 'org.geotools' , name: 'gt-geotiff' , version: '14.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.8'
     compile(group: 'com.github.michaz', name: 'r5', version: '3ab4fa04') {
