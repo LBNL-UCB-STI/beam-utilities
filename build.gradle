@@ -20,11 +20,12 @@ apply plugin: 'scala'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 
 group  = "beam-utilities"
-version  = "0.2.4"
+version  = "0.2.5"
 
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
@@ -35,7 +36,7 @@ allprojects {
         maven { url 'http://download.osgeo.org/webdav/geotools/'}
         maven { url "http://maven.geotoolkit.org/" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
-        maven { url "http://central.maven.org/maven2" }
+        maven { url "https://repo1.maven.org/maven2" }
         maven { url "http://repo.maven.apache.org/maven2" }
         maven { url "http://dl.bintray.com/matsim/matsim" }
         maven { url "http://maven.conveyal.com/" }
@@ -77,10 +78,20 @@ dependencies {
     compile group: 'org.geotools' , name: 'gt-geotiff' , version: '14.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.8'
-    testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.+'
-    testCompile group: "org.mockito", name: "mockito-core", version: "2.+"
-    compile(group: 'com.github.LBNL-UCB-STI', name: 'r5', version: 'mz-tolls-SNAPSHOT', changing: true) {
+    compile(group: 'com.github.michaz', name: 'r5', version: '3ab4fa04') {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
         exclude group: 'org.slf4j', module: 'slf4j-simple'
     }
+
+    // CORE Scala //
+    compile "org.scala-lang:scala-library:2.12.10"
+    compile group: 'org.scala-lang.modules', name: "scala-xml_${scalaBinaryVersion}", version: '1.0.6'
+
+    // NEEDED FOR USING REPL
+    compile "org.scala-lang:scala-compiler:2.12.10"
+}
+
+tasks.withType(ScalaCompile) {
+    // Enable Scala warnings output
+    scalaCompileOptions.additionalParameters = ["-unchecked", "-deprecation", "-feature", "-Xfatal-warnings"]
 }

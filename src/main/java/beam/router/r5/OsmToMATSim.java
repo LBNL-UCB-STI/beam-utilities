@@ -41,27 +41,41 @@ public class OsmToMATSim {
     private final Set<String> unknownLanesTags = new HashSet<>();
     private final Network mNetwork;
 
-    public OsmToMATSim(final Network mNetwork, boolean useBEAMHighwayDefaults) {
+    public OsmToMATSim(final Network mNetwork, boolean useBEAMHighwayDefaults, Map<HighwayType, Double> typeToSpeedMetersPerSecond) {
         this.mNetwork = mNetwork;
         if (useBEAMHighwayDefaults) {
             log.info("Falling back to default values.");
-            this.setBEAMHighwayDefaults(1, "motorway", 2, toMetersPerSecond(75), 1.0, 2500, true);
-            this.setBEAMHighwayDefaults(1, "motorway_link", 1, MOTORWAY_LINK_RATIO * toMetersPerSecond(75), 1.0, 2000, true);
-            this.setBEAMHighwayDefaults(3, "primary", 1, toMetersPerSecond(65), 1.0, 2300);
-            this.setBEAMHighwayDefaults(3, "primary_link", 1, PRIMARY_LINK_RATIO * toMetersPerSecond(65), 1.0, 1800);
-            this.setBEAMHighwayDefaults(2, "trunk", 1, toMetersPerSecond(60), 1.0, 2200);
-            this.setBEAMHighwayDefaults(2, "trunk_link", 1, TRUNK_LINK_RATIO * toMetersPerSecond(60), 1.0, 1500);
+            this.setBEAMHighwayDefaults(1, "motorway", 2,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Motorway, toMetersPerSecond(75)), 1.0, 2500, true);
+            this.setBEAMHighwayDefaults(1, "motorway_link", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.MotorwayLink, MOTORWAY_LINK_RATIO * toMetersPerSecond(75)), 1.0, 2000, true);
+            this.setBEAMHighwayDefaults(3, "primary", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Primary, toMetersPerSecond(65)), 1.0, 2300);
+            this.setBEAMHighwayDefaults(3, "primary_link", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.PrimaryLink, PRIMARY_LINK_RATIO * toMetersPerSecond(65)), 1.0, 1800);
+            this.setBEAMHighwayDefaults(2, "trunk", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Trunk, toMetersPerSecond(60)), 1.0, 2200);
+            this.setBEAMHighwayDefaults(2, "trunk_link", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.TrunkLink, TRUNK_LINK_RATIO * toMetersPerSecond(60)), 1.0, 1500);
 
-            this.setBEAMHighwayDefaults(4, "secondary", 1, toMetersPerSecond(60), 1.0, 2200);
-            this.setBEAMHighwayDefaults(4, "secondary_link", 1, SECONDARY_LINK_RATIO * toMetersPerSecond(60), 1.0, 1500);
-            this.setBEAMHighwayDefaults(5, "tertiary", 1, toMetersPerSecond(55), 1.0, 2100);
-            this.setBEAMHighwayDefaults(5, "tertiary_link", 1, TERTIARY_LINK_RATIO * toMetersPerSecond(55), 1.0, 1500);
+            this.setBEAMHighwayDefaults(4, "secondary", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Secondary, toMetersPerSecond(60)), 1.0, 2200);
+            this.setBEAMHighwayDefaults(4, "secondary_link", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.SecondaryLink, SECONDARY_LINK_RATIO * toMetersPerSecond(60)), 1.0, 1500);
+            this.setBEAMHighwayDefaults(5, "tertiary", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Tertiary, toMetersPerSecond(55)), 1.0, 2100);
+            this.setBEAMHighwayDefaults(5, "tertiary_link", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.TertiaryLink, TERTIARY_LINK_RATIO * toMetersPerSecond(55)), 1.0, 1500);
 
-            this.setBEAMHighwayDefaults(6, "minor", 1, toMetersPerSecond(25), 1.0, 1000);
-            this.setBEAMHighwayDefaults(6, "residential", 1, toMetersPerSecond(25), 1.0, 1000);
-            this.setBEAMHighwayDefaults(6, "living_street", 1, toMetersPerSecond(25), 1.0, 1000);
+            this.setBEAMHighwayDefaults(6, "minor", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Minor, toMetersPerSecond(25)), 1.0, 1000);
+            this.setBEAMHighwayDefaults(6, "residential", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Residential, toMetersPerSecond(25)), 1.0, 1000);
+            this.setBEAMHighwayDefaults(6, "living_street", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.LivingStreet, toMetersPerSecond(25)), 1.0, 1000);
 
-            this.setBEAMHighwayDefaults(6, "unclassified", 1, toMetersPerSecond(28), 1.0, 800);
+            this.setBEAMHighwayDefaults(6, "unclassified", 1,
+                    typeToSpeedMetersPerSecond.getOrDefault(HighwayType.Unclassified, toMetersPerSecond(28)), 1.0, 800);
         }
     }
 
