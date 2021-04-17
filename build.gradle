@@ -35,7 +35,7 @@ allprojects {
         maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
         maven { url "https://repo1.maven.org/maven2" }
         maven { url "https://repo.maven.apache.org/maven2" }
-        maven { url "https://dl.bintray.com/matsim/matsim" }
+        maven { url "https://repo.matsim.org/repository/matsim" }
         maven { url "https://maven.conveyal.com/" }
         maven { url "https://repo1.maven.org/maven2" }
         maven { url "https://download.java.net/maven/2/" }
