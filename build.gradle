@@ -30,8 +30,9 @@ def slf4jVersion = "1.7.25"
 
 allprojects {
     repositories {
+        maven { url "https://repo.osgeo.org/repository/release/" }
         maven { url 'https://download.osgeo.org/webdav/geotools/'}
-        maven { url "https://maven.geotoolkit.org/" }
+//        maven { url "https://maven.geotoolkit.org/" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
         maven { url "https://repo1.maven.org/maven2" }
         maven { url "https://repo.maven.apache.org/maven2" }
@@ -48,6 +49,11 @@ allprojects {
 }
 
 dependencies {
+
+    compile group: 'org.geotools', name: 'gt-main', version: '14.5'
+//    compile group: 'org.geotools', name: 'gt-shapefile', version: '14.5'
+    compile group: 'org.geotools', name: 'gt-referencing', version: '15.2'
+    compile group: 'org.geotools', name: 'gt-epsg-wkt', version: '15.2'
 
     // GPLv3
     compile group: 'org.matsim.contrib', name: 'multimodal', version: '0.10.0'
