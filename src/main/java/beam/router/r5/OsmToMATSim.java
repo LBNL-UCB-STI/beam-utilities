@@ -153,7 +153,7 @@ public class OsmToMATSim {
 
         double nofLanes = defaults.lanesPerDirection;
         double laneCapacity = defaults.laneCapacity;
-        double capacity = defaults.laneCapacity;
+        double capacity;
         double freespeed = defaults.freespeed;
         double freespeedFactor = defaults.freespeedFactor;
         boolean oneway = defaults.oneway;
@@ -237,10 +237,8 @@ public class OsmToMATSim {
         if (capacityTag != null) {
             try {
                 capacity = Double.parseDouble(capacityTag)
-            } catch {
-                capacity = nofLanes * laneCapacity;
-            }
-        } else {
+            } catch
+        } {
             capacity = nofLanes * laneCapacity;
         }
 
