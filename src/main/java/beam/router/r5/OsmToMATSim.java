@@ -236,9 +236,11 @@ public class OsmToMATSim {
         String capacityTag = way.getTag(TAG_CAPACITY);
         if (capacityTag != null) {
             try {
-                capacity = Double.parseDouble(capacityTag)
-            } catch
-        } {
+                capacity = Double.parseDouble(capacityTag);
+            } catch (Exception e) {
+                capacity = nofLanes * laneCapacity;
+            }
+        } else {
             capacity = nofLanes * laneCapacity;
         }
 
