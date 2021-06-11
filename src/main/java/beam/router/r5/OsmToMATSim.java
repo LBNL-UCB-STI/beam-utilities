@@ -29,6 +29,7 @@ public class OsmToMATSim {
     private final static String TAG_MAXSPEED = "maxspeed";
     private final static String TAG_JUNCTION = "junction";
     private final static String TAG_ONEWAY = "oneway";
+    private final static String TAG_CAPACITY = "capacity";
 
     private final static double MOTORWAY_LINK_RATIO = 80.0/120;
     private final static double PRIMARY_LINK_RATIO = 60.0/80;
@@ -152,6 +153,7 @@ public class OsmToMATSim {
 
         double nofLanes = defaults.lanesPerDirection;
         double laneCapacity = defaults.laneCapacity;
+        double capacity;
         double freespeed = defaults.freespeed;
         double freespeedFactor = defaults.freespeedFactor;
         boolean oneway = defaults.oneway;
@@ -231,7 +233,17 @@ public class OsmToMATSim {
         }
 
         // create the link(s)
-        double capacity = nofLanes * laneCapacity;
+        String capacityTag = way.getTag(TAG_CAPACITY);
+        if (capacityTag != null) {
+            try {
+                capacity = Double.parseDouble(capacityTag);
+            } catch (Exception e) {
+                capacity = nofLanes * laneCapacity;
+            }
+        } else {
+            capacity = nofLanes * laneCapacity;
+        }
+
 
         boolean scaleMaxSpeed = false;
         if (scaleMaxSpeed) {
