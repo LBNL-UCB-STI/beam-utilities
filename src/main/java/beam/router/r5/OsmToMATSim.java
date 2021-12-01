@@ -40,6 +40,8 @@ public class OsmToMATSim {
     public final Map<String, BEAMHighwayDefaults> highwayDefaults = new HashMap<>();
     private final Set<String> unknownMaxspeedTags = new HashSet<>();
     private final Set<String> unknownLanesTags = new HashSet<>();
+    private final Set<String> unknownBetasTags = new HashSet<>();
+    private final Set<String> unknownAlphasTags = new HashSet<>();
     private final Network mNetwork;
 
     /**
@@ -54,55 +56,57 @@ public class OsmToMATSim {
     public OsmToMATSim(final Network mNetwork, boolean useBEAMHighwayDefaults,
                        Map<HighwayType, Double> speedsMeterPerSecondMap,
                        Map<HighwayType, Integer> capacityMap,
-                       Map<HighwayType, Integer> lanesMap) {
+                       Map<HighwayType, Integer> lanesMap,
+                       Map<HighwayType, Double> alphaMap,
+                       Map<HighwayType, Double> betaMap) {
         this.mNetwork = mNetwork;
         if (useBEAMHighwayDefaults) {
             log.info("Falling back to default values.");
             this.setBEAMHighwayDefaults(1, "motorway", lanesMap.getOrDefault(HighwayType.Motorway, 2),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Motorway, toMetersPerSecond(75)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Motorway,2500), true);
+                    capacityMap.getOrDefault(HighwayType.Motorway,2500), alphaMap.getOrDefault(HighwayType.Motorway, 1.0), betaMap.getOrDefault(HighwayType.Motorway, 2.0), true);
             this.setBEAMHighwayDefaults(1, "motorway_link", lanesMap.getOrDefault(HighwayType.MotorwayLink, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.MotorwayLink, MOTORWAY_LINK_RATIO * toMetersPerSecond(75)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.MotorwayLink, 2000), true);
+                    capacityMap.getOrDefault(HighwayType.MotorwayLink, 2000), alphaMap.getOrDefault(HighwayType.MotorwayLink, 1.0), betaMap.getOrDefault(HighwayType.MotorwayLink, 2.0), true);
             this.setBEAMHighwayDefaults(3, "primary", lanesMap.getOrDefault(HighwayType.Primary, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Primary, toMetersPerSecond(65)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Primary, 2300));
+                    capacityMap.getOrDefault(HighwayType.Primary, 2300), alphaMap.getOrDefault(HighwayType.Primary, 1.0), betaMap.getOrDefault(HighwayType.Primary, 2.0));
             this.setBEAMHighwayDefaults(3, "primary_link", lanesMap.getOrDefault(HighwayType.PrimaryLink, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.PrimaryLink, PRIMARY_LINK_RATIO * toMetersPerSecond(65)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.PrimaryLink, 1800));
+                    capacityMap.getOrDefault(HighwayType.PrimaryLink, 1800), alphaMap.getOrDefault(HighwayType.PrimaryLink, 1.0), betaMap.getOrDefault(HighwayType.PrimaryLink, 2.0));
             this.setBEAMHighwayDefaults(2, "trunk", lanesMap.getOrDefault(HighwayType.Trunk, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Trunk, toMetersPerSecond(60)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Trunk, 2200));
+                    capacityMap.getOrDefault(HighwayType.Trunk, 2200), alphaMap.getOrDefault(HighwayType.Trunk, 1.0), betaMap.getOrDefault(HighwayType.Trunk, 2.0));
             this.setBEAMHighwayDefaults(2, "trunk_link", lanesMap.getOrDefault(HighwayType.TrunkLink, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.TrunkLink, TRUNK_LINK_RATIO * toMetersPerSecond(60)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.TrunkLink, 1500));
+                    capacityMap.getOrDefault(HighwayType.TrunkLink, 1500), alphaMap.getOrDefault(HighwayType.TrunkLink, 1.0), betaMap.getOrDefault(HighwayType.TrunkLink, 2.0));
 
             this.setBEAMHighwayDefaults(4, "secondary", lanesMap.getOrDefault(HighwayType.Secondary, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Secondary, toMetersPerSecond(60)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Secondary, 2200));
+                    capacityMap.getOrDefault(HighwayType.Secondary, 2200), alphaMap.getOrDefault(HighwayType.Secondary, 1.0), betaMap.getOrDefault(HighwayType.Secondary, 2.0));
             this.setBEAMHighwayDefaults(4, "secondary_link", lanesMap.getOrDefault(HighwayType.SecondaryLink, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.SecondaryLink, SECONDARY_LINK_RATIO * toMetersPerSecond(60)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.SecondaryLink, 1500));
+                    capacityMap.getOrDefault(HighwayType.SecondaryLink, 1500), alphaMap.getOrDefault(HighwayType.SecondaryLink, 1.0), betaMap.getOrDefault(HighwayType.SecondaryLink, 2.0));
             this.setBEAMHighwayDefaults(5, "tertiary", lanesMap.getOrDefault(HighwayType.Tertiary, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Tertiary, toMetersPerSecond(55)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Tertiary, 2100));
+                    capacityMap.getOrDefault(HighwayType.Tertiary, 2100), alphaMap.getOrDefault(HighwayType.Tertiary, 1.0), betaMap.getOrDefault(HighwayType.Tertiary, 2.0));
             this.setBEAMHighwayDefaults(5, "tertiary_link", lanesMap.getOrDefault(HighwayType.TertiaryLink, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.TertiaryLink, TERTIARY_LINK_RATIO * toMetersPerSecond(55)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.TertiaryLink, 1500));
+                    capacityMap.getOrDefault(HighwayType.TertiaryLink, 1500), alphaMap.getOrDefault(HighwayType.TertiaryLink, 1.0), betaMap.getOrDefault(HighwayType.TertiaryLink, 2.0));
 
             this.setBEAMHighwayDefaults(6, "minor", lanesMap.getOrDefault(HighwayType.Minor, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Minor, toMetersPerSecond(25)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Minor, 1000));
+                    capacityMap.getOrDefault(HighwayType.Minor, 1000), alphaMap.getOrDefault(HighwayType.Minor, 1.0), betaMap.getOrDefault(HighwayType.Minor, 2.0));
             this.setBEAMHighwayDefaults(6, "residential", lanesMap.getOrDefault(HighwayType.Residential, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Residential, toMetersPerSecond(25)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Residential, 1000));
+                    capacityMap.getOrDefault(HighwayType.Residential, 1000), alphaMap.getOrDefault(HighwayType.Residential, 1.0), betaMap.getOrDefault(HighwayType.Residential, 2.0));
             this.setBEAMHighwayDefaults(6, "living_street", lanesMap.getOrDefault(HighwayType.LivingStreet, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.LivingStreet, toMetersPerSecond(25)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.LivingStreet, 1000));
+                    capacityMap.getOrDefault(HighwayType.LivingStreet, 1000), alphaMap.getOrDefault(HighwayType.LivingStreet, 1.0), betaMap.getOrDefault(HighwayType.LivingStreet, 2.0));
 
             this.setBEAMHighwayDefaults(6, "unclassified", lanesMap.getOrDefault(HighwayType.Unclassified, 1),
                     speedsMeterPerSecondMap.getOrDefault(HighwayType.Unclassified, toMetersPerSecond(28)), 1.0,
-                    capacityMap.getOrDefault(HighwayType.Unclassified, 800));
+                    capacityMap.getOrDefault(HighwayType.Unclassified, 800), alphaMap.getOrDefault(HighwayType.Unclassified, 1.0), betaMap.getOrDefault(HighwayType.Unclassified, 2.0));
         }
     }
 
@@ -118,8 +122,8 @@ public class OsmToMATSim {
      * @param laneCapacity_vehPerHour the capacity per lane [veh/h]
      * @see <a href="http://wiki.openstreetmap.org/wiki/Map_Features#Highway">http://wiki.openstreetmap.org/wiki/Map_Features#Highway</a>
      */
-    public void setBEAMHighwayDefaults(final int hierarchy, final String highwayType, final double lanesPerDirection, final double freespeed, final double freespeedFactor, final double laneCapacity_vehPerHour) {
-        setBEAMHighwayDefaults(hierarchy, highwayType, lanesPerDirection, freespeed, freespeedFactor, laneCapacity_vehPerHour, false);
+    public void setBEAMHighwayDefaults(final int hierarchy, final String highwayType, final double lanesPerDirection, final double freespeed, final double freespeedFactor, final double laneCapacity_vehPerHour, final double alpha, final double beta) {
+        setBEAMHighwayDefaults(hierarchy, highwayType, lanesPerDirection, freespeed, freespeedFactor, laneCapacity_vehPerHour,alpha, beta, false);
     }
 
     /**
@@ -135,8 +139,8 @@ public class OsmToMATSim {
      * @param oneway                  <code>true</code> to say that this road is a oneway road
      */
     public void setBEAMHighwayDefaults(final int hierarchy, final String highwayType, final double lanesPerDirection, final double freespeed,
-                                       final double freespeedFactor, final double laneCapacity_vehPerHour, final boolean oneway) {
-        this.highwayDefaults.put(highwayType, new BEAMHighwayDefaults(hierarchy, lanesPerDirection, freespeed, freespeedFactor, laneCapacity_vehPerHour, oneway));
+                                       final double freespeedFactor, final double laneCapacity_vehPerHour, final double alpha, final double beta, final boolean oneway) {
+        this.highwayDefaults.put(highwayType, new BEAMHighwayDefaults(hierarchy, lanesPerDirection, freespeed, freespeedFactor, laneCapacity_vehPerHour, alpha, beta, oneway));
     }
 
     public Link createLink(final Way way, long osmID, Integer r5ID, final Node fromMNode, final Node toMNode,
@@ -156,6 +160,8 @@ public class OsmToMATSim {
         double capacity;
         double freespeed = defaults.freespeed;
         double freespeedFactor = defaults.freespeedFactor;
+        double alpha = defaults.alpha;
+        double beta = defaults.beta;
         boolean oneway = defaults.oneway;
         boolean onewayReverse = false;
 
@@ -259,6 +265,8 @@ public class OsmToMATSim {
             l.setFreespeed(freespeed);
             l.setCapacity(capacity);
             l.setNumberOfLanes(nofLanes);
+            l.getAttributes().putAttribute("alpha", alpha);
+            l.getAttributes().putAttribute("beta", beta);
             l.setAllowedModes(flagStrings);
             NetworkUtils.setOrigId(l, Long.toString(osmID));
             NetworkUtils.setType(l, highway);
@@ -282,15 +290,19 @@ public class OsmToMATSim {
         public final double freespeedFactor;
         public final double laneCapacity;
         public final boolean oneway;
+        public final double alpha;
+        public final double beta;
 
         public BEAMHighwayDefaults(final int hierarchy, final double lanesPerDirection, final double freespeed,
-                                   final double freespeedFactor, final double laneCapacity, final boolean oneway) {
+                                   final double freespeedFactor, final double laneCapacity, final double alpha, final double beta, final boolean oneway) {
             this.hierarchy = hierarchy;
             this.lanesPerDirection = lanesPerDirection;
             this.freespeed = freespeed;
             this.freespeedFactor = freespeedFactor;
             this.laneCapacity = laneCapacity;
             this.oneway = oneway;
+            this.alpha = alpha;
+            this.beta = beta;
         }
     }
 }
