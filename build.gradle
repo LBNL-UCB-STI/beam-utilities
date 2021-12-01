@@ -23,7 +23,7 @@ targetCompatibility = 1.8
 
 
 group  = "beam-utilities"
-version  = "0.2.13"
+version  = "0.2.15"
 
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
