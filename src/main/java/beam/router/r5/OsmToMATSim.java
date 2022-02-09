@@ -30,6 +30,7 @@ public class OsmToMATSim {
     private final static String TAG_JUNCTION = "junction";
     private final static String TAG_ONEWAY = "oneway";
     private final static String TAG_CAPACITY = "capacity";
+    private final static String TAG_HGV = "hgv";
 
     private final static double MOTORWAY_LINK_RATIO = 80.0/120;
     private final static double PRIMARY_LINK_RATIO = 60.0/80;
@@ -256,6 +257,11 @@ public class OsmToMATSim {
             freespeed = freespeed * freespeedFactor;
         }
 
+        String hgv = way.getTag(TAG_HGV);
+        if (hgv == null) {
+            hgv = "unclassified";
+        }
+
         // only create link, if both nodes were found, node could be null, since nodes outside a layer were dropped
         Id<Node> fromId = fromMNode.getId();
         Id<Node> toId = toMNode.getId();
@@ -267,6 +273,7 @@ public class OsmToMATSim {
             l.setNumberOfLanes(nofLanes);
             l.getAttributes().putAttribute("alpha", alpha);
             l.getAttributes().putAttribute("beta", beta);
+            l.getAttributes().putAttribute("hgv", this.isHdvAllowed(hgv));
             l.setAllowedModes(flagStrings);
             NetworkUtils.setOrigId(l, Long.toString(osmID));
             NetworkUtils.setType(l, highway);
@@ -274,6 +281,13 @@ public class OsmToMATSim {
         } else {
             throw new RuntimeException();
         }
+    }
+
+    /**
+     * whether heavy duty vehicle (hdv) is allowed or not
+     */
+    private boolean isHdvAllowed(String hgv) {
+        return hgv.equalsIgnoreCase("designated") || hgv.equalsIgnoreCase("yes");
     }
 
     public static double toMetersPerSecond(double milesPerHour) {
