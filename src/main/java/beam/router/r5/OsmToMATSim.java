@@ -271,12 +271,13 @@ public class OsmToMATSim {
             l.setFreespeed(freespeed);
             l.setCapacity(capacity);
             l.setNumberOfLanes(nofLanes);
-            l.getAttributes().putAttribute("alpha", alpha);
-            l.getAttributes().putAttribute("beta", beta);
-            l.getAttributes().putAttribute("hgv", this.isHdvAllowed(hgv));
             l.setAllowedModes(flagStrings);
             NetworkUtils.setOrigId(l, Long.toString(osmID));
             NetworkUtils.setType(l, highway);
+            l.getAttributes().putAttribute("alpha", alpha);
+            l.getAttributes().putAttribute("beta", beta);
+            l.getAttributes().putAttribute("hgv", this.isHdvAllowed(hgv));
+            l.getAttributes().putAttribute("osmid", osmID);
             return l;
         } else {
             throw new RuntimeException();
