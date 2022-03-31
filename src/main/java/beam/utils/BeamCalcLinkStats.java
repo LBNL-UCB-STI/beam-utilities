@@ -41,8 +41,6 @@ import java.util.concurrent.TimeUnit;
 public class BeamCalcLinkStats {
 
     private final static Logger log = LoggerFactory.getLogger(CalcLinkStats.class);
-    private static final int MIN = 0;
-    private static final int SUM = 1;
     private static final String NEW_LINE_SEPARATOR = "\n";
     private static final String[] statType = {"MIN", "AVG"};
     private static final int NOF_STATS = 2;
@@ -60,6 +58,10 @@ public class BeamCalcLinkStats {
     }
 
     public void addData(final VolumesAnalyzer analyzer, final TravelTime ttimes) {
+        addData(analyzer, ttimes, null);
+    }
+
+    public void addData(final VolumesAnalyzer analyzer, final TravelTime ttimes, String mode) {
         count++;
         // TODO verify ttimes has hourly timeBin-Settings
 
@@ -70,7 +72,8 @@ public class BeamCalcLinkStats {
             Link link = network.getLinks().get(linkId);
 
             // get the volumes for the link ID from the analyzier
-            double[] volumes = analyzer.getVolumesPerHourForLink(linkId);
+            double[] volumes = mode == null ?
+                    analyzer.getVolumesPerHourForLink(linkId) : analyzer.getVolumesPerHourForLink(linkId, mode);
 
             // get the destination container for the data from link data (could have gotten this through iterator right away)
             LinkData data = linkData.get(linkId);
@@ -90,24 +93,24 @@ public class BeamCalcLinkStats {
                 // the following has something to do with the fact that we are doing this for multiple iterations.  So there are variations.
                 // this collects min and max.  There is, however, no good control over how many iterations this is collected.
                 if (count == 1) {
-                    data.volumes[MIN][hour] = volumes[hour];
-                    data.ttimes[MIN][hour] = ttime;
+                    data.volumes[LinkData.MIN][hour] = volumes[hour];
+                    data.ttimes[LinkData.MIN][hour] = ttime;
                 } else {
-                    if (volumes[hour] < data.volumes[MIN][hour]) data.volumes[MIN][hour] = volumes[hour];
-                    if (ttime < data.ttimes[MIN][hour]) data.ttimes[MIN][hour] = ttime;
+                    if (volumes[hour] < data.volumes[LinkData.MIN][hour]) data.volumes[LinkData.MIN][hour] = volumes[hour];
+                    if (ttime < data.ttimes[LinkData.MIN][hour]) data.ttimes[LinkData.MIN][hour] = ttime;
                 }
 
                 // this is the regular summing up for each hour
-                data.volumes[SUM][hour] += volumes[hour];
-                data.ttimes[SUM][hour] += volumes[hour] * ttime;
+                data.volumes[LinkData.SUM][hour] += volumes[hour];
+                data.ttimes[LinkData.SUM][hour] += volumes[hour] * ttime;
             }
             // dataVolumes[.][nofHours] are daily (0-24) values
             if (count == 1) {
-                data.volumes[MIN][nofHours] = sumVolumes;
-                data.volumes[SUM][nofHours] = sumVolumes;
+                data.volumes[LinkData.MIN][nofHours] = sumVolumes;
+                data.volumes[LinkData.SUM][nofHours] = sumVolumes;
             } else {
-                if (sumVolumes < data.volumes[MIN][nofHours]) data.volumes[MIN][nofHours] = sumVolumes;
-                data.volumes[SUM][nofHours] += sumVolumes;
+                if (sumVolumes < data.volumes[LinkData.MIN][nofHours]) data.volumes[LinkData.MIN][nofHours] = sumVolumes;
+                data.volumes[LinkData.SUM][nofHours] += sumVolumes;
             }
         }
     }
@@ -158,30 +161,13 @@ public class BeamCalcLinkStats {
 
                     writeCommaAndStr(out, Double.toString(link.getCapacity()));
 
-                    writeCommaAndStr(out, statType[SUM]);
+                    writeCommaAndStr(out, statType[LinkData.SUM]);
 
                     //WRITE VOLUME
-                    writeCommaAndStr(out, Double.toString((data.volumes[SUM][i]) / count));
+                    writeCommaAndStr(out, Double.toString((data.volumes[LinkData.SUM][i]) / count));
 
                     //WRITE TRAVELTIME
-                    String ttimesMin = Double.toString(data.ttimes[MIN][i]);
-                    if (data.volumes[SUM][i] == 0) {
-                        // nobody traveled along the link in this hour, so we cannot calculate an average
-                        // use the value available or the minimum instead (min and max should be the same, =freespeed)
-                        double ttsum = data.ttimes[SUM][i];
-                        if (ttsum != 0.0) {
-                            writeCommaAndStr(out, Double.toString(ttsum));
-                        } else {
-                            writeCommaAndStr(out, ttimesMin);
-                        }
-                    } else {
-                        double ttsum = data.ttimes[SUM][i];
-                        if (ttsum == 0) {
-                            writeCommaAndStr(out, ttimesMin);
-                        } else {
-                            writeCommaAndStr(out, Double.toString(ttsum / data.volumes[SUM][i]));
-                        }
-                    }
+                    writeCommaAndStr(out, Double.toString(data.calculateAverageTravelTime(i)));
 
                     out.write(NEW_LINE_SEPARATOR);
                 }
@@ -206,13 +192,60 @@ public class BeamCalcLinkStats {
         out.write(str);
     }
 
-    private static class LinkData {
+    public Map<Id<Link>, LinkData> getLinkData() {
+        return linkData;
+    }
+
+    public int getNofHours() {
+        return nofHours;
+    }
+
+    public static class LinkData {
+        static final int MIN = 0;
+        static final int SUM = 1;
         final double[][] volumes;
         final double[][] ttimes;
 
         LinkData(final double[][] linksVolumes, final double[][] linksTTimes) {
             volumes = linksVolumes.clone();
             ttimes = linksTTimes.clone();
+        }
+        
+        public double getMinVolume(int hour) {
+            return volumes[MIN][hour];
+        }
+        
+        public double getSumVolume(int hour) {
+            return volumes[SUM][hour];
+        }
+        
+        public double getMinTravelTime(int hour) {
+            return ttimes[MIN][hour];
+        }
+        
+        public double getSumTravelTime(int hour) {
+            return ttimes[SUM][hour];
+        }
+        
+        public double calculateAverageTravelTime(int hour) {
+            double ttimesMin = this.ttimes[LinkData.MIN][hour];
+            if (this.volumes[LinkData.SUM][hour] == 0) {
+                // nobody traveled along the link in this hour, so we cannot calculate an average
+                // use the value available or the minimum instead (min and max should be the same, =freespeed)
+                double ttsum = this.ttimes[LinkData.SUM][hour];
+                if (ttsum != 0.0) {
+                    return ttsum;
+                } else {
+                    return ttimesMin;
+                }
+            } else {
+                double ttsum = this.ttimes[LinkData.SUM][hour];
+                if (ttsum == 0) {
+                    return ttimesMin;
+                } else {
+                    return ttsum / this.volumes[LinkData.SUM][hour];
+                }
+            }
         }
     }
 }
