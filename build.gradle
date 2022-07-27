@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         mavenLocal()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
@@ -15,7 +14,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'scala'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
 sourceCompatibility = 1.8
@@ -23,7 +22,7 @@ targetCompatibility = 1.8
 
 
 group  = "beam-utilities"
-version  = "0.2.17"
+version  = "0.2.18"
 
 def scalaBinaryVersion = "2.12"
 def slf4jVersion = "1.7.25"
@@ -42,37 +41,35 @@ allprojects {
         maven { url "https://maven.geo-solutions.it" }
         mavenLocal()
         mavenCentral()
-        jcenter()
         maven { url "https://jitpack.io" }
     }
 }
 
 dependencies {
 
-    compile group: 'org.geotools', name: 'gt-main', version: '14.5'
+    implementation(group: 'org.geotools', name: 'gt-main', version: '14.5')
 
     // GPLv3
-    compile group: 'org.matsim.contrib', name: 'multimodal', version: '0.10.0'
-    compile group: 'org.matsim.contrib', name: 'bicycle', version: '0.10.0'
-    compile (group: 'org.matsim', name: 'matsim', version: '0.10.0-beam-1') {
+    implementation group: 'org.matsim.contrib', name: 'multimodal', version: '0.10.0'
+    implementation group: 'org.matsim.contrib', name: 'bicycle', version: '0.10.0'
+    implementation(group: 'com.github.wrashid.matsim', name: 'matsim', version: '0.10.1-beam-15') {
         exclude group: 'log4j', module: 'log4j'
     }
-    compile group: 'org.matsim.contrib', name: 'socnetsim', version: '0.10.0'
+    implementation group: 'org.matsim.contrib', name: 'socnetsim', version: '0.10.0'
 
-    compile "org.slf4j:slf4j-api:${slf4jVersion}"
-    compile "ch.qos.logback:logback-classic:1.2.3"
-    compile "com.typesafe.scala-logging:scala-logging_${scalaBinaryVersion}:3.9.0"
-    compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "ch.qos.logback:logback-classic:1.2.3"
+    implementation "com.typesafe.scala-logging:scala-logging_${scalaBinaryVersion}:3.9.0"
+    implementation "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
 
-    testCompile group: 'junit', name: 'junit', version: '4.8'
-    compile(group: 'com.conveyal', name: 'osm-lib', version: '1.4.0')
+    implementation(group: 'com.conveyal', name: 'osm-lib', version: '1.4.0')
 
     // CORE Scala //
-    compile "org.scala-lang:scala-library:2.12.10"
-    compile group: 'org.scala-lang.modules', name: "scala-xml_${scalaBinaryVersion}", version: '1.0.6'
+    implementation "org.scala-lang:scala-library:2.12.16"
+    implementation group: 'org.scala-lang.modules', name: "scala-xml_${scalaBinaryVersion}", version: '1.0.6'
 
     // NEEDED FOR USING REPL
-    compile "org.scala-lang:scala-compiler:2.12.10"
+    implementation "org.scala-lang:scala-compiler:2.12.16"
 }
 
 tasks.withType(ScalaCompile) {
