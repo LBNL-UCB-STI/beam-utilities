@@ -1,2 +1,2 @@
 install:
-- gradle install  -x test
+- gradle publish  -x test
