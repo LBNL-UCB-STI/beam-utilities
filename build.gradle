@@ -76,3 +76,11 @@ tasks.withType(ScalaCompile) {
     // Enable Scala warnings output
     scalaCompileOptions.additionalParameters = ["-unchecked", "-deprecation", "-feature", "-Xfatal-warnings"]
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
