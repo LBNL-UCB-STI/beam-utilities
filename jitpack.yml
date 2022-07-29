@@ -1,2 +1,5 @@
+before_install:
+  - sdk install gradle 7.5
+  - sdk use gradle 7.5
 install:
 - gradle publish  -x test
