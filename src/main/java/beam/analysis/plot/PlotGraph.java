@@ -1,7 +1,7 @@
 package beam.analysis.plot;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -26,7 +26,7 @@ public class PlotGraph {
     public void writeGraphic(LegHistogram legHistogram, OutputDirectoryHierarchy CONTROLLER_IO, String fileName, String xAxisLabel, final String mode, int iteration, int binSize) {
         try {
             String newPath = getHistogramPath(CONTROLLER_IO, fileName, mode, iteration);
-            ChartUtilities.saveChartAsPNG(new File(newPath), getGraphic(legHistogram, mode, iteration, xAxisLabel, binSize), 1024, 768);
+            ChartUtils.saveChartAsPNG(new File(newPath), getGraphic(legHistogram, mode, iteration, xAxisLabel, binSize), 1024, 768);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -35,7 +35,7 @@ public class PlotGraph {
     public void writeGraphic(OutputDirectoryHierarchy CONTROLLER_IO, Integer iteration, String mode , String fileName , Map<String, TreeMap<Integer, Integer>> personEnterCount , Map<String, TreeMap<Integer, Integer>> personExitCount , Map<String, TreeMap<Integer, Integer>> onRoutes  , String xAxisLabel , int binSize) {
         try {
             String newPath = getHistogramPath(CONTROLLER_IO, fileName, mode, iteration);
-            ChartUtilities.saveChartAsPNG(new File(newPath), getGraphic(mode, iteration , personEnterCount , personExitCount, onRoutes , xAxisLabel , binSize), 1024, 768);
+            ChartUtils.saveChartAsPNG(new File(newPath), getGraphic(mode, iteration , personEnterCount , personExitCount, onRoutes , xAxisLabel , binSize), 1024, 768);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
