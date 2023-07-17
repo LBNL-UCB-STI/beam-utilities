@@ -40,6 +40,7 @@ allprojects {
         maven { url "https://download.java.net/maven/2/" }
         maven { url "https://maven.geo-solutions.it" }
         maven { url "https://mvn.topobyte.de" }
+        maven { url "https://mvn.slimjars.com" }
         mavenLocal()
         mavenCentral()
         maven { url "https://jitpack.io" }
